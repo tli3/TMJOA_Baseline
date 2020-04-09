@@ -1,6 +1,8 @@
 # OAI
 Scripts for OAI project
 
+Input: OAI_20190621.csv
+
 # step1. preprocess
 
 Rscript Pred_step0_preprocess.r
