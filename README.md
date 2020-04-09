@@ -7,10 +7,10 @@ Rscript Pred_step0_preprocess.r
 
 step2.
 
-Rscript Pred_step0_preprocess.r
+Rscript STAT_circ.r
 
-Rscript Pred_step0_preprocess.r
+Rscript STAT_mahplot.r
 
-Rscript Pred_step0_preprocess.r
+Rscript STAT_circ_Inter.r
 
 
