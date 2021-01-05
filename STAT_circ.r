@@ -5,7 +5,7 @@ library(ggplot2) # Data visualization
 library(data.table)
 library(xgboost)
 library(caret)
-library(qvalue)
+#library(qvalue)
 library(circlize)
 library(car)
 library(EnvStats)
@@ -31,8 +31,7 @@ temp=wilcox.test(X[y==1,i],X[y==0,i])$p.value
 AUC<-c(AUC,max(rocobj,1-rocobj))
 P0=c(P0,(temp))
 }
-library(qvalue)
-Q0=qvalue(P0)$qvalues
+Q0=p.adjust(P0,'fdr')
 stat0=data.frame(list(COR=AUC,pval=P0,qval=Q0))
 rownames(stat0)=paste0(modality,'_',modality2)
 PATH0='out/circ.pdf'
