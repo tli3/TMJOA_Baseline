@@ -5,7 +5,7 @@ library(ggplot2) # Data visualization
 library(data.table)
 library(xgboost)
 library(caret)
-library(qvalue)
+#library(qvalue)
 library(circlize)
 library(car)
 library(EnvStats)
@@ -34,8 +34,8 @@ temp=wilcox.test(X[y==1,i],X[y==0,i])$p.value
 AUC<-c(AUC,max(rocobj,1-rocobj))
 P0=c(P0,(temp))
 }
-library(qvalue)
-Q0=qvalue(P0)$qvalues
+#Q0=qvalue(P0)$qvalues
+Q0=p.adjust(P0,'fdr')
 INDDD=intersect(which(AUC>0.65),53:1378)
 Q0=Q0[INDDD]
 X=X[,INDDD]
@@ -50,7 +50,6 @@ temp=wilcox.test(X[y==1,i],X[y==0,i])$p.value
 AUC<-c(AUC,max(rocobj,1-rocobj))
 P0=c(P0,(temp))
 }
-library(qvalue)
 stat0=data.frame(list(COR=AUC,pval=P0,qval=Q0))
 modality=unlist(lapply(strsplit(colnames(X),'\\+'),'[',1))
 modality2=unlist(lapply(strsplit(colnames(X),'\\+'),'[',2))
