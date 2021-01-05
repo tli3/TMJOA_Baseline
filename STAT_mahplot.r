@@ -35,8 +35,9 @@ temp=wilcox.test(X[y==1,i],X[y==0,i])$p.value #t.tset
 AUC<-c(AUC,max(rocobj$auc,1-rocobj$auc))
 P0=c(P0,(temp))
 }
-library(qvalue)
-Q0=qvalue(P0)$qvalues
+#library(qvalue)
+#Q0=qvalue(P0)$qvalues
+Q0=p.adjust(P0,'fdr')
 bonf=P0
 for(temp in umod){
 print(temp)
