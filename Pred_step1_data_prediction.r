@@ -364,6 +364,7 @@ for(seed1 in 2020:2029)
 }
 write.csv(PredT,file=paste0(out,'out/PredT.csv'),row.names=F,quote=F)
 write.csv(STATT,file=paste0(out,'out/STATT.csv'),row.names=F,quote=F)
+#############you can stop here. the following command is not necessary at this moment###########
 ##################################################################
 #XGBoost with Fixed feature: Backward deletion					 #
 ##################################################################
