@@ -6,6 +6,7 @@ Input: OAI_20190621.csv
 # step1. preprocess
 
 python3 Step0_InterractionFile.py --input --output
+
 python3 Step0_AUC.py --input --output
 
 # step2. draw circplot, mahplot with and without interaction terms.
