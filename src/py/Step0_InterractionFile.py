@@ -53,7 +53,7 @@ def main(args):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser()
     parser.add_argument('input',help='input csv file')
     parser.add_argument('--output','-o',default='./',help='output folder')
     args = parser.parse_args()
