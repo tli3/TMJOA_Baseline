@@ -1,15 +1,14 @@
 import os
 import csv
-import pandas as pd
 import argparse
-import numpy as np
+import pandas as pd
 import sklearn.model_selection
 from sklearn.model_selection import StratifiedKFold
 
 #########################################
 #           Python 3.7.9                #
 #           input = csv file            #
-#           output = 'AllT.csv'         #
+#       output = 'interractions.csv'    #
 #########################################
 
 
