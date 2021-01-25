@@ -16,10 +16,10 @@ def main(args):
     input = args.input
     out = args.output
 
-    seed1 = args.first_seed
-    seed_end = args.last_seed
+    seed1 = int(args.first_seed)
+    seed_end = int(args.last_seed)
     nbr_seed = seed_end-seed1
-    nbr_folds = args.folds
+    nbr_folds = int(args.folds)
 
     interractions = pd.read_csv(input)
     y = interractions['y'] #result(0 or 1)
