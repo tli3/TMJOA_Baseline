@@ -57,13 +57,14 @@ def main(args):
             pred.at[test_index,seed] = clf.predict(X_test[index])
             importance.at[index,str(seed)+'_'+str(i+1)] = clf.feature_importances_
             i+=1
-        pred_seed = pred[seed]
-        acc = round(sum(pred_seed==y)/samples, 4)
-        prec1 = round(sum(pred_seed & y)/(sum(pred_seed)+0.00001), 4)
-        prec0 = round(sum((pred_seed==0) & (y==0))/(sum((pred_seed==0))+0.00001), 4)
-        recall1 = round(sum(pred_seed & y)/(sum(y)+0.00001), 4)
-        recall0 = round(sum((pred_seed==0) & (y==0))/(sum((y==0))+0.00001), 4)
-        f1 = round(1/(1/prec1+1/recall1)+1/(1/prec0+1/recall0), 4)
+        pred_seed = pred[seed].astype(bool)
+        y = y.astype(bool)
+        acc = round(metrics.accuracy_score(y, pred_seed), 4)
+        prec1 = round(metrics.precision_score(y, pred_seed), 4)
+        prec0 = round(metrics.precision_score(~y, ~pred_seed), 4)
+        recall1 = round(metrics.recall_score(y, pred_seed), 4)
+        recall0 = round(metrics.recall_score(~y, ~pred_seed), 4)
+        f1 = round(metrics.f1_score(y, pred_seed), 4)
         auc = round(metrics.roc_auc_score(y, pred_seed), 4)
         stat.loc[seed-seed1] = [acc,prec1,prec0,recall1,recall0,f1,auc]
 
