@@ -21,6 +21,10 @@ Rscript STAT_mahplot_inter.r
 
 # step3. Prediction
 
-Rscript Pred_step1_data_prediction.r
+python3 Step1_RandomForest.py
+python3 Step1_XGBoost.py
+python3 Step1_LightGBM.py
+python3 Step1_RidgeRegression.py
+python3 Step1_LogisticRegression.py
 
 Rscript Pred_step2_inference_plot.r
