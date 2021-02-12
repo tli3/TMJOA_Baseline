@@ -121,8 +121,8 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('input',help='input csv interraction file')
-    parser.add_argument('--output','-o',default='circ.pdf',help='output filename')
+    parser.add_argument('input',help='input csv file (original or interraction features')
+    parser.add_argument('--output','-o',default='out/circ.pdf',help='output filename')
     parser.add_argument('--sort',default='AUC',help='method for sorting values (AUC,pval,qval)')
     parser.add_argument('--original_features',default=0,help='number of original features without interractions')
     parser.add_argument('--min_auc',default=0,help='minimum AUC to select features')
