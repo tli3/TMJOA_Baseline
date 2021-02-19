@@ -1,15 +1,11 @@
 import os
 import csv
-import math
 import argparse
+import operator
 import numpy as np
 import pandas as pd
-from colour import Color
 import matplotlib.pyplot as plt
-from scipy.stats import wilcoxon
 from sklearn import metrics
-import statsmodels.stats.multitest as multi
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 #########################################
 #           Python 3.7.9                #
@@ -48,9 +44,15 @@ def main(args):
 
     for feat in features[:max(len(features),8)]:
         curve_pred = X[feat]
-        fpr,tpr,thresh = metrics.roc_curve(y, curve_pred, pos_label=1)
-        auc = round(metrics.auc(fpr, tpr),2)
-        plt.plot(fpr,tpr, '--',label=feat.split('+')[-1]+', auc='+str(auc))
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        for label in [0,1]:
+            fpr[label], tpr[label], _ = metrics.roc_curve(y, curve_pred, pos_label=label)
+            roc_auc[label] = round(metrics.auc(fpr[label], tpr[label]),3)
+
+        ind_max = max(roc_auc.items(), key=operator.itemgetter(1))[0]
+        plt.plot(fpr[ind_max],tpr[ind_max], '--',label=feat.split('+')[-1]+', auc='+str(roc_auc[ind_max]))
 
     plt.plot([0,1],[0,1], c='grey', linewidth=1)
     plt.legend(loc=0)
