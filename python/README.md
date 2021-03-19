@@ -7,12 +7,11 @@ Scripts for TMJOAI project
 ## Prerequisites
 
 python 3.7.9 with the libraries : numpy pandas sklearn colour seaborn matplotlib statsmodels xgboost lightgbm
-OR
-docker 20.10.0 to run the code inside a docker container with python and the librairies installed
 
 ## What is it?
 
 TMJOAI is a prediction tool of the health status of a patient for TemporoMandibular Joint Osteoarthitis (TMJ OA).
+
 It uses decision tree algorithms for machine learning.
 
 It has 2 features : 
@@ -20,11 +19,13 @@ It has 2 features :
 * Adding data to the dataset and train the machine learning models : the output contains the evaluation metrics of the model and several statistical plots (circplot, manhattanplot, Boxplot, ROC curve).
 
 inputfile: csv file containing patient's data to predict health status -> Prediction | csv file containing data to add to the dataset -> Training 
+
 File containing training dataset: Data.csv
 
 ## Running the code
 
 run docker container tmjoai : bash src/main_TMJOAI.sh -i inputfile
+
 The tool to use (prediction or training) is determined wheter the inputfile contains the health status of the patient or not.
 
 run prediction tool : python3 src/main_prediction.py input --folder --output
@@ -34,8 +35,11 @@ run training tool : bash src/main_training.sh --input --datafile --output_folder
 ### Prediction
 
 python3 src/main_prediction.py
+
 input: csv file not containing the health status of a patient
+
 output: csv file containing the prediction (healthy or diseased)
+
 The prediction is based on the average prediction of the trained models (50 XGBoost models and 50 LightGBM models).
 
 ```
@@ -53,7 +57,9 @@ optional arguments:
 ### Training
 
 bash src/main_training.sh
+
 Input: csv file containg data to add to the training dataset
+
 Output: trained models, evaluation metrics, statistical plots
 
 What it does:
@@ -65,6 +71,7 @@ What it does:
 * Create plots based on the models training: ROC, Boxplot_contribution, Boxplot_values
 
 The models are trained using a default 10 times 5-folds cross-validation.
+
 Each time, the random seed for spliting the folds for the cross validation varies between seed1 and seed_end.
 
 ```
@@ -86,6 +93,7 @@ options:
 #### Add data to the dataset
 
 python3 src/Step0_AddTrainingData.py
+
 Verifies if the data in the inputfile is already in the file containing the dataset, if not, it adds the data at the end of the file.
 
 ```
@@ -102,7 +110,8 @@ optional arguments:
 #### Preprocess
 
 python3 src/Step0_InterractionFile.py
-Calculated the interaction beteween the features by multiplying them 2 by 2.
+
+Calculates the interaction beteween the features by multiplying them 2 by 2.
 
 ```
 usage: Step0_InterractionFile.py [-h] [--output OUTPUT] input
@@ -116,6 +125,7 @@ optional arguments:
 ```
 
 python3 src/Step0_AUC.py
+
 Calculates the AUC of each feature.
 
 ```
@@ -135,6 +145,7 @@ optional arguments:
 ####  Create statistical plots
 
 python3 src/STAT_circ.py
+
 Draws circular plot containing the AUC, the pvalues and the qvalues of the features.
 
 ```
@@ -155,6 +166,7 @@ optional arguments:
 ```
 
 python3 src/STAT_manhattan.py
+
 Draws manhattan plot of the AUC, pvalues and qvalues of the features.
 
 ```
@@ -206,6 +218,7 @@ optional arguments:
 ```
 
 python3 src/Step1_FinalModel.py
+
 Makes the average prediction of all the prediction made by the previously trained models.
 
 ```
@@ -223,6 +236,7 @@ optional arguments:
 #### Create plots based on the models training
 
 python3 src/FinalStat.py
+
 Returns the evaluation metrics of the trained models, their average and the metrics of the finale model.
 
 ```
@@ -237,6 +251,7 @@ optional arguments:
 #### Calculate evaluation metrics: metrics of the different models trained, average of these metrics and metrics of the final model
 
 python3 src/Step2_ROC_Plot.py
+
 Draws the ROC curve of the trained models and the top features.
 
 ```
@@ -251,6 +266,7 @@ optional arguments:
 ```
 
 python3 src/Step2_Boxplot.py
+
 Draws boxplot of the top features values and contributions.
 
 ```
