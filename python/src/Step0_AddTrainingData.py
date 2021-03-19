@@ -41,7 +41,7 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('input',help='input csv file')
+    parser.add_argument('input',help='input csv data file to add to the training dataset')
     parser.add_argument('--file','-f',default='Data.csv',help='csv file containing all the training data')
     args = parser.parse_args()
 
