@@ -1,6 +1,8 @@
-import os
-import csv
 import argparse
+import csv
+import os
+import sys
+
 import pandas as pd
 import sklearn.model_selection
 from sklearn.model_selection import StratifiedKFold
@@ -8,7 +10,7 @@ from sklearn.model_selection import StratifiedKFold
 #########################################
 #           Python 3.7.9                #
 #           input = csv file            #
-#       output = 'interractions.csv'    #
+#       output = 'interactions.csv'    #
 #########################################
 
 
@@ -16,25 +18,22 @@ def main(args):
     
     input = args.input
     out = args.output
+
+    print('Creating: ',os.path.basename(out))
     
     ##### Creating folders #####
 
-    if out[-1]!='/':
-        out=out+'/'
-
-    if not os.path.exists(out):
-        os.mkdir(out)
-
-    for fold in ['out','RandomForest','XGBoost','LightGBM','Ridge','Logistic']:
-        if not os.path.exists(out+fold):
-            os.mkdir(out+fold)
+    if not os.path.exists(os.path.dirname(out)):
+        try:
+            os.makedirs(os.path.dirname(out))
+        except:
+            pass
 
     ###### Read file #####
 
     input_file = pd.read_csv(input)
-    y = input_file['y'] #result(0 or 1)
-    modalities = input_file.columns.drop('y')
-    X = input_file.loc[:,modalities] #value of covariates
+    X = input_file.drop(['y'], axis=1, errors='ignore')
+    modalities = X.columns
     nbr_features = len(modalities)
 
     ##### Interaction features file #####
@@ -50,13 +49,15 @@ def main(args):
                 new_feature = X[modalities[m1]]*X[modalities[m2]]
                 features[feature_name] = new_feature
 
-    features.to_csv(out+'interractions.csv',index=False)
+    features.to_csv(out,index=False)
+    print('Saving: ',os.path.basename(out))
+    return features
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('input',help='input csv file')
-    parser.add_argument('--output','-o',default='./',help='output folder')
+    parser.add_argument('--output','-o',default='interactions.csv',help='output file')
     args = parser.parse_args()
 
     main(args)

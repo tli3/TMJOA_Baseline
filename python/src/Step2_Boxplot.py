@@ -1,16 +1,14 @@
-import os
-import csv
-import math
 import argparse
+import csv
+import operator
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from colour import Color
-import matplotlib.pyplot as plt
-from scipy.stats import wilcoxon
-from sklearn import metrics
-import statsmodels.stats.multitest as multi
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import seaborn as sns
+from sklearn import metrics
+
 pd.options.mode.chained_assignment = None  # default='warn'
 
 #########################################
@@ -21,10 +19,20 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 def main(args):
 
+    print('Creating: Boxplots')
+
     input = args.input
     folder = args.folder
     if args.output is None:
         out = args.folder
+    else :
+        out = args.output
+    
+    if not os.path.exists(os.path.dirname(out)):
+        try:
+            os.makedirs(os.path.dirname(out))
+        except:
+            pass
 
     input_file = pd.read_csv(input)
     y = input_file['y'] #result(0 or 1)
@@ -33,7 +41,7 @@ def main(args):
 
     top_importance = pd.read_csv(folder+'/Importance.txt', sep=",", header=None)
     features = list(top_importance[top_importance[1].cumsum() < 0.8].iloc[:,0])
-    top_val = (X[features]-X[features].mean())/X[features].std()
+    top_val = (X[features]-X[features].mean())/X[features].std() #normalization
 
     ##### Boxplot normalized values #####
 
@@ -47,8 +55,14 @@ def main(args):
     # Calculate AUCs
 
     for feat in features:
-        val = metrics.roc_auc_score(y, top_val[feat])
-        values.loc[feat,'AUC'] = round(max(val,1-val),3)
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        for label in [0,1]:
+            fpr[label], tpr[label], _ = metrics.roc_curve(y, top_val[feat], pos_label=label)
+            roc_auc[label] = round(metrics.auc(fpr[label], tpr[label]),3)
+        ind_max = max(roc_auc.items(), key=operator.itemgetter(1))[0]
+        values.loc[feat,'AUC'] = round(roc_auc[ind_max],3)
 
     # Boxplot
 
@@ -76,11 +90,13 @@ def main(args):
     plt.savefig(out+'/Boxplot_values.pdf')
     # plt.show()
     plt.close()
+    print('Saving: Boxplot_values.pdf')
 
     ##### Boxplot features contribution #####
 
     importance = pd.read_csv(folder+'/Importance.csv', index_col=0)
     contribution = importance.loc[features].transpose()
+    # print(contribution)
 
     fig = plt.figure()
     flierprops = dict(marker='o', markerfacecolor='red', markersize=4, alpha=0.5, linestyle='none')
@@ -91,21 +107,22 @@ def main(args):
     fig.subplots_adjust(left=0.25)
     bp.set_xlabel('Model contribution', size=12)
     bp.set_yticklabels(features_name)
-    plt.title('Boxplots of top '+str(len(features))+' features (>80%) in '+folder, fontweight='bold')
+    plt.title('Boxplots of top '+str(len(features))+' features (>80%) in '+os.path.basename(folder), fontweight='bold')
     bp.grid('On')
     plt.gcf().set_size_inches(8, 8)
     plt.savefig(out+'/Boxplot_contribution.pdf')
     # plt.show()
     plt.close()
+    print('Saving: Boxplot_contribution.pdf')
 
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input','-i',default='interractions.csv',help='input interraction features csv file')
+    parser.add_argument('--input','-i',default='interactions.csv',help='input interraction features csv file')
     parser.add_argument('--output','-o',help='output folder')
-    parser.add_argument('--folder','-f',default='XGBoost/eta0.01W1C0.5S0.5',help='Folder to evaluate')
+    parser.add_argument('--folder','-f',default='Models/FinalModel',help='folder to evaluate')
     args = parser.parse_args()
 
     main(args)

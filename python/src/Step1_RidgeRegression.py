@@ -1,4 +1,5 @@
 import os
+import pickle 
 import argparse
 import numpy as np
 import pandas as pd
@@ -18,22 +19,24 @@ from sklearn import preprocessing
 
 def main(args):
 
+    print('Training RidgeRegression model')
+
     interractions = args.interractions
     auc = args.auc
     out = args.output
-    seed1 = int(args.first_seed)
-    seed_end = int(args.last_seed)
-    nbr_seed = seed_end-seed1
-    nbr_folds = int(args.folds)
 
     if out[-1]!='/':
         out=out+'/'
 
-    if not os.path.exists(out):
-        os.mkdir(out)
+    if not os.path.exists(os.path.dirname(out)):
+        os.makedirs(os.path.dirname(out))
 
     interractions = pd.read_csv(interractions)
     AUC = pd.read_csv(auc, index_col=0)
+    seed1 = int(AUC.columns[0].split('_')[0])
+    seed_end = int(AUC.columns[-1].split('_')[0]) + 1
+    nbr_seed = seed_end-seed1
+    nbr_folds = int(AUC.columns[-1].split('_')[-1])
 
     modalities = interractions.columns.drop('y')
     y = interractions['y'] #result(0 or 1)
@@ -64,6 +67,7 @@ def main(args):
             clf = Ridge(alpha=best_alpha, normalize=True, random_state=0)
             clf = clf.fit(X_train, y_train)
             pred.at[test_index,seed] = clf.predict(X_test)
+            pickle.dump(clf, open(out+'RidgeRegression_'+str(seed)+'_'+str(i+1)+'.pkl', 'wb'))
 
 
             i+=1
@@ -82,6 +86,8 @@ def main(args):
     pred.to_csv(out+'Pred.csv', index=False)
     stat.to_csv(out+'Stat.csv')
 
+    print('Model saved')
+
 
 if __name__ == "__main__":
 
@@ -89,9 +95,6 @@ if __name__ == "__main__":
     parser.add_argument('--interractions','-i',default='interractions.csv',help='input csv interraction file')
     parser.add_argument('--auc',default='AUC.csv',help='input csv AUC file')
     parser.add_argument('--output','-o',default='RidgeRegression/',help='output folder')
-    parser.add_argument('--first_seed',default=2020,help='number of the first seed')
-    parser.add_argument('--last_seed',default=2030,help='number of the last seed')
-    parser.add_argument('--folds',default=5,help='number of the folds for cross-validation')
     args = parser.parse_args()
 
     main(args)

@@ -1,14 +1,16 @@
-import os
+import argparse
 import csv
 import math
-import argparse
+import operator
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from colour import Color
-import matplotlib.pyplot as plt
-from scipy.stats import wilcoxon
-from sklearn import metrics
 import statsmodels.stats.multitest as multi
+from colour import Color
+from scipy.stats import mannwhitneyu
+from sklearn import metrics
 
 #########################################
 #           Python 3.7.9                #
@@ -23,11 +25,18 @@ def main(args):
     sort = args.sort
     original_features = int(args.original_features)
     min_auc = float(args.min_auc)
-    
+
+    print('Creating: ',os.path.basename(out))
+
+    if not os.path.exists(os.path.dirname(out)):
+        try:
+            os.makedirs(os.path.dirname(out))
+        except:
+            pass
 
     input_file = pd.read_csv(input)
     y = input_file['y'] #result(0 or 1)
-    modalities = input_file.columns.drop('y')[original_features:]
+    modalities = input_file.columns.drop('y')#[original_features:]
     X = input_file.loc[:,modalities] #value of covariates
 
     values = pd.DataFrame(index=modalities,columns=['AUC','pval','qval'])
@@ -35,17 +44,24 @@ def main(args):
     # Calculate AUC, pval and qval
 
     for mod in modalities:
-        val = metrics.roc_auc_score(y, X[mod])
-        values.loc[mod,'AUC'] = round(max(val,1-val),3)
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        for label in [0,1]:
+            fpr[label], tpr[label], _ = metrics.roc_curve(y, X[mod], pos_label=label)
+            roc_auc[label] = round(metrics.auc(fpr[label], tpr[label]),3)
+        ind_max = max(roc_auc.items(), key=operator.itemgetter(1))[0]
+        values.loc[mod,'AUC'] = round(roc_auc[ind_max],3)
+        values.loc[mod,'pval'] = mannwhitneyu(X.iloc[y[y==1].index][mod],X.iloc[y[y==0].index][mod], alternative='two-sided')[1]
+    
+    values['qval'] = abs(multi.multipletests(values['pval'], method = 'fdr_bh')[1])
 
+    values = values.iloc[original_features:]
     values = values.loc[values[values['AUC'] >= min_auc].index]
     nbr_features = len(values.index)
 
     for mod in values.index:
-        values.loc[mod,'pval'] = wilcoxon(X.iloc[y[y==1].index][mod],X.iloc[y[y==0].index][mod], alternative='two-sided', correction=True)[1]
-        # print(mod, values.loc[mod,'pval'])
-
-    values['qval'] = abs(multi.multipletests(values['pval'], method = 'fdr_bh')[1])
+        values.loc[mod,'pval'] = mannwhitneyu(X.iloc[y[y==1].index][mod],X.iloc[y[y==0].index][mod], alternative='two-sided')[1]
 
     values['pval'] = round(-np.log(values['pval'].astype(float))/np.log(10),3)
     values['qval'] = round(-np.log(values['qval'].astype(float))/np.log(10),3)
@@ -61,7 +77,7 @@ def main(args):
     thetas = np.linspace(2*np.pi,0,nbr_features, endpoint=False)
     barWidth = theta
     barHeight = 1.0
-    offset = 2.0
+    offset = 3.0
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='polar')
@@ -91,7 +107,7 @@ def main(args):
             if idx in range(round(nbr_features/4),round(3*nbr_features/4)):
                 rot = rot + 180
             ax.text(thetas[idx], offset+barHeight*list(values.columns)[::-1].index(val)+barHeight/2, values[val][idx],
-                    ha='center', va='center', rotation=rot)
+                    fontsize=12, ha='center', va='center', rotation=rot)
 
     ax.set_xticks(thetas)
     ax.set_xticklabels(features)
@@ -101,8 +117,12 @@ def main(args):
     labels = []
     for label, angle in zip(ax.get_xticklabels(), rotations):
         x,y = label.get_position()
-        lab = ax.text(x,y+offset*1.2+len(values.columns)*barHeight+len(label.get_text())*0.04, label.get_text(), 
-                        ha=label.get_ha(), va=label.get_va(), rotation=angle)
+        if x<=np.pi/2 or x>3*np.pi/2 : ha = 'left'
+        else : ha = 'right'
+        if x<np.pi : va = 'bottom'
+        else : va = 'top'
+        lab = ax.text(x,y+offset+(1+2*len(values.columns))*barHeight/2, label.get_text(), 
+                        fontsize=12, ha=ha, va=va, rotation=angle)
         labels.append(lab)
     ax.set_xticklabels([])
     # ax.set_rticks([])
@@ -110,11 +130,14 @@ def main(args):
                     labels=values.columns.values[::-1], angle=np.rad2deg(thetas[-1])/2, 
                     fontsize=12, fontweight="bold", ha='center')
     ax.grid(False)
+    fig.subplots_adjust(bottom=0.15, top=0.85)
     
     # Show and save graphic
     plt.gcf().set_size_inches(15, 15)
-    plt.savefig(out, format=out.split('.')[-1])
+    plt.savefig(out)
     # plt.show()
+
+    print('Saving: ',os.path.basename(out))
 
 
 
