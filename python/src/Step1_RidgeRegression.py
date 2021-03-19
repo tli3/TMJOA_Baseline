@@ -1,15 +1,12 @@
-import os
-import pickle 
 import argparse
+import os
+import pickle
+
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import RidgeCV
-from sklearn.linear_model import Ridge
-from sklearn.linear_model import RidgeClassifierCV
-from sklearn.model_selection import StratifiedKFold
 from sklearn import metrics
-from matplotlib import pylab as plt
-from sklearn import preprocessing
+from sklearn.linear_model import Ridge, RidgeCV
+from sklearn.model_selection import StratifiedKFold
 
 #########################################
 #           Python 3.7.9                #

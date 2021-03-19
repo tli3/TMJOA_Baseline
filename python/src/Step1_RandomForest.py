@@ -1,14 +1,12 @@
+import argparse
 import os
 import pickle
-import argparse
+
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
-from matplotlib import pylab as plt
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 #########################################
 #           Python 3.7.9                #
@@ -103,14 +101,6 @@ def main(args):
 
     df = pd.DataFrame(importancetxt[(importancetxt>0.01).any(1)], columns=['mean'])
     df['mean'] = df['mean'].fillna(0).astype(float)
-
-    plt.figure()
-    df.plot()
-    df.plot(kind='bar', y='mean', legend=False, figsize=(30, 30))
-    plt.title('XGBoost Feature Importance')
-    plt.ylabel('relative importance')
-    plt.gcf().savefig(out+'feature_importance.png')
-    plt.close()
 
     print('Model saved')
 

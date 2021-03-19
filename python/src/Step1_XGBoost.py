@@ -5,10 +5,8 @@ import pickle
 import numpy as np
 import pandas as pd
 import xgboost as xgb
-from matplotlib import pylab as plt
 from sklearn import metrics
 from sklearn.model_selection import StratifiedKFold
-from xgboost import XGBClassifier
 
 #########################################
 #           Python 3.7.9                #

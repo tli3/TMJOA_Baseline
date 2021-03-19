@@ -1,18 +1,18 @@
-import os
-import math
-import pickle
 import argparse
+import math
+import os
+import pickle
+import warnings
+
 import numpy as np
 import pandas as pd
-from glmnet import LogitNet
-from sklearn.model_selection import StratifiedKFold
-from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import LogisticRegressionCV
 import statsmodels.api as sm
-from statsmodels.formula.api import glm
+from glmnet import LogitNet
 from sklearn import metrics
-from matplotlib import pylab as plt
-import warnings
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold
+from statsmodels.formula.api import glm
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 #########################################
