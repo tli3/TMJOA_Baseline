@@ -15,17 +15,17 @@ if [[ " ${var[@]} " =~ " y " ]]
     then
         Command="bash /app/src/main_training.sh -i ${inputfile} -o /app/out -s /app/src --seed1 1000 --seed_end 1010" #training
     else 
-        Command="python3 /app/src/main_prediction.py ${inputfile} --folder /app/Models -o /app/out/Predictions.csv" #prediction
+        Command="python3 /app/src/main_prediction.py ${inputfile} --folder /app/Models -o /app/out/Prediction.csv" #prediction
 fi
 
 docker run --rm \
-    -v /Users/luciacev-admin/Documents/OAI/TMJOAI_DSCI/Data.csv:/app/Data.csv \
-    -v /Users/luciacev-admin/Documents/OAI/TMJOAI_DSCI/Models:/app/Models \
-    -v /Users/luciacev-admin/Documents/OAI/TMJOAI_DSCI/src:/app/src \
-    -v /Users/luciacev-admin/Documents/OAI/TMJOAI_DSCI/${inputfile}:/app/$(basename ${inputfile}) \
-    -v /Users/luciacev-admin/Documents/OAI/TMJOAI_DSCI/out:/app/out \
+    -v /Users/luciacev-admin/Documents/TMJOAI/OAI_github/python/Data.csv:/app/Data.csv \
+    -v /Users/luciacev-admin/Documents/TMJOAI/OAI_github/python/Models:/app/Models \
+    -v /Users/luciacev-admin/Documents/TMJOAI/OAI_github/python/${inputfile}:/app/$(basename ${inputfile}) \
+    -v /Users/luciacev-admin/Documents/TMJOAI/OAI_github/python/out:/app/out \
     tmjoai:latest \
     ${Command}
+    # -v /Users/luciacev-admin/Documents/TMJOAI/OAI_github/python/src:/app/src \
 
 
 # docker run --rm \

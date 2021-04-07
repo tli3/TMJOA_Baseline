@@ -7,6 +7,9 @@ COPY requirements.txt .
 
 RUN pip3 install -r requirements.txt
 
+RUN git clone -b v2.0 https://github.com/celiale/OAI.git
+
+WORKDIR /app/python
 
 # # Python 3.7
 # RUN apt-get update && \
