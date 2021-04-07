@@ -13,9 +13,9 @@ IFS=',' read -a var < ${inputfile}
 
 if [[ " ${var[@]} " =~ " y " ]]
     then
-        Command="bash /app/src/main_training.sh -i ${inputfile} -o /app/out -s /app/src --seed1 1000 --seed_end 1010" #training
+        Command="bash /app/python/src/main_training.sh -i ${inputfile} -o /app/python/out -s /app/src --seed1 1000 --seed_end 1010" #training
     else 
-        Command="python3 /app/src/main_prediction.py ${inputfile} --folder /app/Models -o /app/out/Prediction.csv" #prediction
+        Command="python3 /app/python/src/main_prediction.py ${inputfile} --folder /app/python/Models -o /app/python/out/Prediction.csv" #prediction
 fi
 
 docker run --rm \
