@@ -13,7 +13,7 @@ IFS=',' read -a var < ${inputfile}
 
 if [[ " ${var[@]} " =~ " y " ]]
     then
-        Command="bash /app/OAI/python/src/main_training.sh -i /app/OAI/python/$(basename ${inputfile}) -o /app/OAI/python/output -s /app/OAI/python/src --seed1 1000 --seed_end 1010" #training
+        Command="bash /app/OAI/python/src/main_training.sh -i /app/OAI/python/$(basename ${inputfile}) -d /app/OAI/python/Data.csv -o /app/OAI/python/output -s /app/OAI/python/src --seed1 1000 --seed_end 1010" #training
     else 
         Command="python3 /app/OAI/python/src/main_prediction.py /app/OAI/python/$(basename ${inputfile}) --folder /app/OAI/python/Models -o /app/OAI/python/output/Prediction.csv" #prediction
 fi

@@ -34,7 +34,7 @@ while [ "$1" != "" ]; do
         -i | --inputfile )  shift
             inputfile=$1;;
         -d | --datafile)  shift
-            inputfile=$1;;
+            datafile=$1;;
         -o | --output_folder )  shift
             output_folder=$1;;
         -s | --src_folder ) shift
@@ -58,7 +58,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-Data="${datafile:-Data.csv}"
+datafile="${datafile:-Data.csv}"
 output_folder="${output_folder:-out}"
 src_folder="${src_folder:-src}"
 model_folder="${model_folder:-Models}"
@@ -66,16 +66,16 @@ seed1="${seed1:=1000}"
 seed_end="${seed_end:=1010}"
 nbr_folds="${nbr_folds:=5}"
 
-nbr_features=$((`head -1 Data.csv | sed 's/[^,]//g' | wc -m` -1))
+nbr_features=$((`head -1 $datafile | sed 's/[^,]//g' | wc -m` -1))
 
 # echo ${inputfile}
 
-python3 ${src_folder}/Step0_AddTrainingData.py ${inputfile} --file ${Data}
-python3 ${src_folder}/Step0_InterractionFile.py ${Data} -o interactions.csv
+python3 ${src_folder}/Step0_AddTrainingData.py ${inputfile} --file ${datafile}
+python3 ${src_folder}/Step0_InterractionFile.py ${datafile} -o interactions.csv
 python3 ${src_folder}/Step0_AUC.py -i interactions.csv -o AUC.csv --first_seed ${seed1} --last_seed ${seed_end} --folds ${nbr_folds}
-python3 ${src_folder}/STAT_circ.py ${Data} -o ${output_folder}/circ.pdf --sort pval
+python3 ${src_folder}/STAT_circ.py ${datafile} -o ${output_folder}/circ.pdf --sort pval
 python3 ${src_folder}/STAT_circ.py interactions.csv -o ${output_folder}/circ_interactions.pdf --sort AUC --original_features ${nbr_features} --min_auc 0.65
-python3 ${src_folder}/STAT_manhattan.py ${Data} -o ${output_folder}/manhattan.pdf
+python3 ${src_folder}/STAT_manhattan.py ${datafile} -o ${output_folder}/manhattan.pdf
 python3 ${src_folder}/STAT_manhattan.py interactions.csv -o ${output_folder}/manhattan_interactions.pdf --original_features ${nbr_features}
 
 for modelName in XGBoost LightGBM 
