@@ -6,10 +6,10 @@ RUN apt-get update && \
 RUN mkdir /app
 WORKDIR /app
 
-RUN wget https://github.com/celiale/OAI/archive/refs/tags/v2.0.zip
-RUN unzip v3.0.zip
+RUN wget https://github.com/celiale/OAI/archive/refs/tags/3.0.zip
+RUN unzip OAI-3.0.zip
 RUN mv OAI-3.0 OAI
-RUN rm -rf v3.0.zip \
+RUN rm -rf OAI-3.0.zip \
 	rm -rf OAI-3.0
 
 WORKDIR /app/OAI/python
