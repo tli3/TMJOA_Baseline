@@ -24,7 +24,7 @@ def main(args):
     out = args.output
     sort = args.sort
     original_features = int(args.original_features)
-    min_auc = float(args.min_auc)
+    # min_auc = float(args.min_auc)
 
     print('Creating: ',os.path.basename(out))
 
@@ -55,14 +55,25 @@ def main(args):
         values.loc[mod,'pval'] = mannwhitneyu(X.iloc[y[y==1].index][mod],X.iloc[y[y==0].index][mod], alternative='two-sided')[1]
     
     values['qval'] = abs(multi.multipletests(values['pval'], method = 'fdr_bh')[1])
+    values['pval'] = round(-np.log(values['pval'].astype(float))/np.log(10),3)
+    values['qval'] = round(-np.log(values['qval'].astype(float))/np.log(10),3)
 
     values = values.iloc[original_features:]
-    values = values.loc[values[values['AUC'] >= min_auc].index]
-    nbr_features = len(values.index)
+    values = values.sort_values(by=[sort], ascending=False)
+    if args.nbr_features:
+        nbr_features = args.nbr_features
+    else:
+        nbr_features = 30
+    values = values.iloc[:nbr_features]
+
+    # values = values.iloc[original_features:]
+    # values = values.loc[values[values['AUC'] >= min_auc].index]
+    # nbr_features = len(values.index)
 
     for mod in values.index:
         values.loc[mod,'pval'] = mannwhitneyu(X.iloc[y[y==1].index][mod],X.iloc[y[y==0].index][mod], alternative='two-sided')[1]
 
+    values['qval'] = abs(multi.multipletests(values['pval'], method = 'fdr_bh')[1])
     values['pval'] = round(-np.log(values['pval'].astype(float))/np.log(10),3)
     values['qval'] = round(-np.log(values['qval'].astype(float))/np.log(10),3)
 
@@ -95,9 +106,9 @@ def main(args):
         colors.loc[mod].loc[colors.loc[mod] == nbr_features] = nbr_features - 1
         colors.loc[mod] = color_bar[colors.loc[mod]].values
 
-    bar_qval = ax.bar(thetas, barHeight, bottom=offset, color=colors['qval'], edgecolor='white', width=barWidth)
-    bar_pval = ax.bar(thetas, barHeight, bottom=offset+barHeight, color=colors['pval'], edgecolor='white', width=barWidth) #bottom=values['qval']
-    bar_AUC = ax.bar(thetas, barHeight, bottom=offset+barHeight*2, color=colors['AUC'], edgecolor='white', width=barWidth) #bottom=np.add(values['qval'],values['pval']).tolist()
+    ax.bar(thetas, barHeight, bottom=offset, color=colors['qval'], edgecolor='white', width=barWidth)
+    ax.bar(thetas, barHeight, bottom=offset+barHeight, color=colors['pval'], edgecolor='white', width=barWidth) #bottom=values['qval']
+    ax.bar(thetas, barHeight, bottom=offset+barHeight*2, color=colors['AUC'], edgecolor='white', width=barWidth) #bottom=np.add(values['qval'],values['pval']).tolist()
 
     # Legend and axis
 
@@ -130,7 +141,7 @@ def main(args):
                     labels=values.columns.values[::-1], angle=np.rad2deg(thetas[-1])/2, 
                     fontsize=12, fontweight="bold", ha='center')
     ax.grid(False)
-    fig.subplots_adjust(bottom=0.15, top=0.85)
+    fig.subplots_adjust(bottom=0.2, top=0.8, left=0.2, right=0.8)
     
     # Show and save graphic
     plt.gcf().set_size_inches(15, 15)
@@ -148,7 +159,8 @@ if __name__ == "__main__":
     parser.add_argument('--output','-o',default='out/circ.pdf',help='output filename')
     parser.add_argument('--sort',default='AUC',help='method for sorting values (AUC,pval,qval)')
     parser.add_argument('--original_features',default=0,help='number of original features without interractions')
-    parser.add_argument('--min_auc',default=0,help='minimum AUC to select features')
+    parser.add_argument('--nbr_features',type=int,help='number of features to show in plot')
+    # parser.add_argument('--min_auc',default=0,help='minimum AUC to select features')
     args = parser.parse_args()
 
     main(args)

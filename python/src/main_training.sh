@@ -1,5 +1,6 @@
 #!/bin/sh
 
+SECONDS=0
 Help()
 {
    # Display Help
@@ -35,6 +36,10 @@ while [ "$1" != "" ]; do
             inputfile=$1;;
         -d | --datafile)  shift
             datafile=$1;;
+        --interaction_file)  shift
+            interaction_file=$1;;
+        -a | --auc)  shift
+            auc_file=$1;;
         -o | --output_folder )  shift
             output_folder=$1;;
         -s | --src_folder ) shift
@@ -59,6 +64,8 @@ while [ "$1" != "" ]; do
 done
 
 datafile="${datafile:-Data.csv}"
+interaction_file="${interaction_file:-interactions.csv}"
+auc_file="${auc_file:-AUC.csv}"
 output_folder="${output_folder:-out}"
 src_folder="${src_folder:-src}"
 model_folder="${model_folder:-Models}"
@@ -68,25 +75,28 @@ nbr_folds="${nbr_folds:=5}"
 
 nbr_features=$((`head -1 $datafile | sed 's/[^,]//g' | wc -m` -1))
 
-# echo ${inputfile}
+echo ${auc_file}
 
 python3 ${src_folder}/Step0_AddTrainingData.py ${inputfile} --file ${datafile}
-python3 ${src_folder}/Step0_InterractionFile.py ${datafile} -o interactions.csv
-python3 ${src_folder}/Step0_AUC.py -i interactions.csv -o AUC.csv --first_seed ${seed1} --last_seed ${seed_end} --folds ${nbr_folds}
-python3 ${src_folder}/STAT_circ.py ${datafile} -o ${output_folder}/circ.pdf --sort pval
-python3 ${src_folder}/STAT_circ.py interactions.csv -o ${output_folder}/circ_interactions.pdf --sort AUC --original_features ${nbr_features} --min_auc 0.65
+python3 ${src_folder}/Step0_InterractionFile.py ${datafile} -o ${interaction_file}
+python3 ${src_folder}/Step0_AUC.py -i ${interaction_file} -o $auc_file --first_seed ${seed1} --last_seed ${seed_end} --folds ${nbr_folds}
+python3 ${src_folder}/STAT_circ.py ${datafile} -o ${output_folder}/circ.pdf --sort AUC
+python3 ${src_folder}/STAT_circ.py ${interaction_file} -o ${output_folder}/circ_interactions.pdf --sort AUC --original_features ${nbr_features} #--min_auc 0.65
 python3 ${src_folder}/STAT_manhattan.py ${datafile} -o ${output_folder}/manhattan.pdf
-python3 ${src_folder}/STAT_manhattan.py interactions.csv -o ${output_folder}/manhattan_interactions.pdf --original_features ${nbr_features}
+python3 ${src_folder}/STAT_manhattan.py ${interaction_file} -o ${output_folder}/manhattan_interactions.pdf --original_features ${nbr_features}
 
 for modelName in XGBoost LightGBM 
 do
-    python3 ${src_folder}/Step1_${modelName}.py --interactions interactions.csv --auc AUC.csv -o ${model_folder}/${modelName}
-    # python3 ${src_folder}/Step2_Boxplot.py -i interactions.csv -o ${output_folder} --folder ${model_folder}${modelName}
-    # python3 ${src_folder}/Step2_ROC_Plot.py -i interactions.csv -o ${output_folder}/ROC.pdf --folder ${model_folder}${modelName}
+    python3 ${src_folder}/Step1_${modelName}.py --interactions ${interaction_file} --auc $auc_file -o ${model_folder}/${modelName}
+    # python3 ${src_folder}/Step2_Boxplot.py -i ${interaction_file} -o ${output_folder} --folder ${model_folder}${modelName}
+    # python3 ${src_folder}/Step2_ROC_Plot.py -i ${interaction_file} -o ${output_folder}/ROC.pdf --folder ${model_folder}${modelName}
 done
 
-python3 ${src_folder}/Step1_FinalModel.py --interactions interactions.csv --auc AUC.csv -o ${model_folder}/FinalModel --folder ${model_folder}
-python3 ${src_folder}/Step2_Boxplot.py -i interactions.csv -o ${output_folder} --folder ${model_folder}/FinalModel
-python3 ${src_folder}/Step2_ROC_Plot.py -i interactions.csv -o ${output_folder}/ROC.pdf --folder ${model_folder}
+python3 ${src_folder}/Step1_FinalModel.py --interactions ${interaction_file} --auc $auc_file -o ${model_folder}/FinalModel --folder ${model_folder}
+python3 ${src_folder}/Step2_Boxplot.py -i ${interaction_file} -o ${output_folder} --folder ${model_folder}/FinalModel
+python3 ${src_folder}/Step2_ROC_Plot.py -i ${interaction_file} -o ${output_folder}/ROC.pdf --folder ${model_folder}
 
 python3 ${src_folder}/Step2_FinalStat.py -o ${output_folder}/Stats.csv --folder ${model_folder}
+
+duration=$SECONDS
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."

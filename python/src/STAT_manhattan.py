@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.stats.multitest as multi
 from colour import Color
+from matplotlib.lines import Line2D
+from matplotlib.ticker import FixedLocator
 from scipy.stats import mannwhitneyu
 from sklearn import metrics
 
@@ -21,7 +23,7 @@ def main(args):
 
     input = args.input
     out = args.output
-    original_features = int(args.original_features)
+    original_features = args.original_features
     
     print('Creating: ',os.path.basename(out))
 
@@ -64,19 +66,26 @@ def main(args):
     values['qval'] = round(-np.log(values['qval'].astype(float))/np.log(10),3)
 
     features = values.index.str.replace(' ',',').values.astype(str)
-    mod1 = [val[0] for val in np.char.split(features,'+')]
-    mod1 = [val[0] for val in np.char.split(mod1,'*')]
-    mod2 = [val[-1] for val in np.char.split(features,'+')]
+    mods = [val[0] for val in np.char.split(features,'+')]
+    mod1 = [val[0] for val in np.char.split(mods,'*')]
+    mod2 = [val[-1] for val in np.char.split(mods,'*')]
     unique_mod = []
-    for mod in mod1 :
-        if mod not in unique_mod: unique_mod.append(mod)
+    if original_features>0:
+        for mod in mod2 :
+            if mod not in unique_mod: unique_mod.append(mod)
+    else: 
+        for mod in mod1 :
+            if mod not in unique_mod: unique_mod.append(mod)
 
     # Plot
 
     fig, axes = plt.subplots(nrows=3, ncols=1)
-    df = pd.DataFrame(mod1, columns=['mod1'])
-    colormap = ['orange', 'green', 'purple', 'blue', 'cyan']
-    colors = dict(zip(unique_mod,colormap))
+    if original_features>0:
+        df = pd.DataFrame(mod2, columns=['mods'])
+    else:
+        df = pd.DataFrame(mod1, columns=['mods'])
+    colors = ['orange', 'green', 'red', 'blue', 'cyan', 'pink']
+    colormap = dict(zip(unique_mod,colors))
     Max = pd.DataFrame(index=unique_mod, columns=values.columns)
     counts = []
     ticks = []
@@ -85,9 +94,11 @@ def main(args):
         counts.append(mod1.count(unique_mod[i]))
         ticks.append(counts[i]/2 + sum(counts[:i]))
 
+    positions = [sum(counts[:i]) for i in range(len(counts))]
+
     for ax, value in zip(fig.axes, values.columns.values):
         plt.sca(ax)
-        ax.scatter(values.index, values.loc[:,value], s=20, c=df['mod1'].map(colors))
+        ax.scatter(values.index, values.loc[:,value], s=20, c=df['mods'].map(colormap))
         for i in Max.index:
             maxx = Max.loc[i,value]
             plt.annotate(maxx.split('+')[-1], (list(values.index.values).index(maxx), values.loc[maxx,value]))
@@ -98,9 +109,22 @@ def main(args):
         y = [mean, mean]
         plt.plot(x, y, color="midnightblue", linewidth=1)
 
-        plt.xticks(ticks, colors.keys(), rotation=90)
+        # plt.xticks(ticks, colormap.keys(), rotation=90)
         plt.ylabel(values.columns[-int(round(3*ax.get_position().y0)+1)])
+        # ax.legend(['Mean'].append(unique_mod), labelcolor=['midnightblue'].append(colors))
+        legend_elements =   [Line2D([0], [0], color='midnightblue', lw=1, label='Mean')]
+        for i in range(len(unique_mod)):
+            legend_elements.append(Line2D([0], [0], marker='o', color='w', label=unique_mod[i], markerfacecolor=colors[i], markersize=5))
 
+        # ax.xaxis.set_minor_locator(FixedLocator(ticks))
+        plt.xticks(ticks, colormap.keys(), rotation=90)
+        ax.xaxis.set_minor_locator(FixedLocator(positions[1:]))
+        ax.tick_params(which='both', width=2)
+        ax.tick_params(which='major', length=7)
+        ax.tick_params(which='minor', length=40)
+        ax.legend(handles=legend_elements, loc='upper right')
+
+    fig.subplots_adjust(bottom=0.05, top=0.95, left=0.05, right=0.95)
     # plt.show()
     plt.gcf().set_size_inches(15, 15)
     plt.savefig(out)
@@ -113,9 +137,9 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('input',help='input csv file (original or interraction features)')
+    parser.add_argument('input',help='input csv file (original or interaction features)')
     parser.add_argument('--output','-o',default='out/manhattan.pdf',help='output filename')
-    parser.add_argument('--original_features',default=0,help='number of original features to remove from interractions')
+    parser.add_argument('--original_features',type=int,default=0,help='number of original features to remove from interractions')
     args = parser.parse_args()
 
     main(args)

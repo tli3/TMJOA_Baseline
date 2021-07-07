@@ -108,7 +108,7 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--interractions','-i',default='interractions.csv',help='input csv interraction file')
+    parser.add_argument('--interractions','-i',default='interactions.csv',help='input csv interraction file')
     parser.add_argument('--auc',default='AUC.csv',help='input csv AUC file')
     parser.add_argument('--output','-o',default='RandomForest/',help='output folder')
     args = parser.parse_args()

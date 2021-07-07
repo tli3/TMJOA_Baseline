@@ -104,7 +104,7 @@ def main(args):
     bp = sns.boxplot(data=contribution, notch=True, orient='h', flierprops=flierprops, showmeans=True, meanprops=meanprops)
 
     # Axis and legends
-    fig.subplots_adjust(left=0.25)
+    fig.subplots_adjust(left=0.4, right=0.95, top=0.95, bottom=0.1)
     bp.set_xlabel('Model contribution', size=12)
     bp.set_yticklabels(features_name)
     plt.title('Boxplots of top '+str(len(features))+' features (>80%) in '+os.path.basename(folder), fontweight='bold')

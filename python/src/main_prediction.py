@@ -48,7 +48,7 @@ def main(args):
 
     for modelname in models:
         model = pickle.load(open(modelname, 'rb'))
-        splitname = modelname.split('.')[0].split('_')
+        splitname = os.path.basename(modelname).split('.')[0].split('_')
         seed = splitname[1]
         fold = splitname[2]
         features = pd.read_csv(os.path.dirname(modelname)+'/../Features.csv')[seed+'_'+fold].dropna()
@@ -56,11 +56,12 @@ def main(args):
         pred = np.add(pred,np.array(model.predict(fileToPred)))
     
 
-    print(pred/nbr_models)
-    pred = [np.round(x/nbr_models) for x in pred]
-    Predictions = pd.DataFrame({'Pred':pred}, index=interactions.index)
-    Predictions.loc[Predictions['Pred']==1] = 'Diseased'
-    Predictions.loc[Predictions['Pred']==0] = 'Healthy'
+    # print(pred/nbr_models)
+    # pred = [np.round(x/nbr_models) for x in pred]
+    Predictions = pd.DataFrame({'Diagnosis':[np.round(x/nbr_models) for x in pred], 'Disease Probability':pred/nbr_models}, index=interactions.index)
+    Predictions.loc[Predictions['Diagnosis']==1,'Diagnosis'] = 'Diseased'
+    Predictions.loc[Predictions['Diagnosis']==0,'Diagnosis'] = 'Healthy'
+    Predictions['Disease Probability'] = (np.round(Predictions['Disease Probability']*100)).astype(str)+'%'
     Predictions.to_csv(out)
 
     print('Saving: ',os.path.basename(out))
