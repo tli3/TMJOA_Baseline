@@ -6,7 +6,7 @@ Scripts for TMJOAI project
 
 ## Prerequisites
 
-python 3.7.9 with the libraries : numpy pandas sklearn colour seaborn matplotlib statsmodels xgboost lightgbm
+python 3.7.9 with the libraries : numpy (v1.19.5) pandas (v1.2.0) scikit-learn (0.24.0) colour seaborn matplotlib statsmodels xgboost (v1.3.1) lightgbm (v3.1.1)
 
 ## What is it?
 
@@ -66,7 +66,7 @@ What it does:
 * Add data to Data.csv (containing the full dataset)
 * Preprocess the data: Interaction file, AUC file
 * Create statistical plots: circplot, manhattanplot (with and without interaction terms)
-* Train the machine learning models: 5 models have been tested (XGBoost, LightGBM, RandomForest, RidgeRegression, LogisticRegression); 2 models are used to make the final prediction
+* Train the machine learning models: 5 models have been tested (XGBoost, LightGBM, RandomForest, RidgeRegression, LogisticRegression); 2 models (XGBoost and LightGBM) are used to make the final prediction
 * Calculate evaluation metrics: metrics of the different models trained, average of these metrics and metrics of the final model
 * Create plots based on the models training: ROC, Boxplot_contribution, Boxplot_values
 
@@ -77,10 +77,12 @@ Each time, the random seed for spliting the folds for the cross validation varie
 ```
 Program to train the OA prediction tool
 
-Syntax: main_training.sh [-i|d|o|s|m|seed1|seed_end|nbr_folds|h]
+Syntax: main_training.sh [--OPTIONS]
 options:
 -i|--inputfile         Name of the file containing the values to add to the training dataset.
 -d|--datafile          Name of the file contraining all the training data.
+--interaction_file     Name of the file contraining the interactions features calculated from the training data.
+-a|--auc               Name of the file contraining the AUC value of each interaction feature.
 -o|--output_folder     Name of the output folder to save the outputs.
 -s|--src_folder        Name of the source folder containing the python scripts.
 -m|--model_folder      Name of the source folder to save the trained models.
@@ -111,7 +113,7 @@ optional arguments:
 
 python3 src/Step0_InterractionFile.py
 
-Calculates the interaction beteween the features by multiplying them 2 by 2.
+Calculates the interaction between the features by multiplying each of them together.
 
 ```
 usage: Step0_InterractionFile.py [-h] [--output OUTPUT] input
@@ -221,6 +223,8 @@ python3 src/Step1_FinalModel.py
 
 Makes the average prediction of all the prediction made by the previously trained models.
 
+The prediction of the health status of each patient is made by averaging the prediction made by all the models not using the patient for the training (10 out of 100 models).
+
 ```
 usage: Step1_FinalModel.py [-h] [--interactions INTERACTIONS] [--auc AUC]
                            [--output OUTPUT] [--folder FOLDER]
@@ -237,7 +241,7 @@ optional arguments:
 
 python3 src/FinalStat.py
 
-Returns the evaluation metrics of the trained models, their average and the metrics of the finale model.
+Returns the evaluation metrics of the trained models, their average and the metrics of the final model.
 
 ```
 usage: Step2_FinalStat.py [-h] [--output OUTPUT] [--folder FOLDER]

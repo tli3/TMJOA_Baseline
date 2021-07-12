@@ -6,10 +6,12 @@ Help()
    # Display Help
    echo "Program to train the OA prediction tool"
    echo
-   echo "Syntax: main_training.sh [-i|d|o|s|m|seed1|seed_end|nbr_folds|h]"
+   echo "Syntax: main_training.sh [--OPTIONS]"
    echo "options:"
    echo "-i|--inputfile         Name of the file containing the values to add to the training dataset."
    echo "-d|--datafile          Name of the file contraining all the training data."
+   echo "--interaction_file     Name of the file contraining the interactions features calculated from the training data."
+   echo "-a|--auc               Name of the file contraining the AUC value of each interaction feature."
    echo "-o|--output_folder     Name of the output folder to save the outputs."
    echo "-s|--src_folder        Name of the source folder containing the python scripts."
    echo "-m|--model_folder      Name of the source folder to save the trained models."
