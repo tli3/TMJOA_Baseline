@@ -14,5 +14,5 @@ RUN rm -rf 3.0.zip \
 
 WORKDIR /app/OAI/python
 RUN pip3 install -r ./requirements.txt
-RUN wget https://github.com/celiale/OAI/releases/download/v2.0/Models.zip
+RUN wget https://github.com/celiale/OAI/releases/download/3.0/Models.zip
 RUN unzip Models.zip
