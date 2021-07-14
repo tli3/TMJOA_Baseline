@@ -24,17 +24,13 @@ File containing training dataset: Data.csv
 
 ## Running the code
 
-run docker container tmjoai : bash src/main_TMJOAI.sh -i inputfile
+bash src/main_TMJOAI.sh -i inputfile
 
 The tool to use (prediction or training) is determined wheter the inputfile contains the health status of the patient or not.
 
-run prediction tool : python3 src/main_prediction.py input --folder --output
-
-run training tool : bash src/main_training.sh --input --datafile --output_folder --src_folder --model_folder --seed1 --seed_end --nbr_folds 
-
 ### Prediction
 
-python3 src/main_prediction.py
+python3 src/main_prediction.py *file/to/predict* -o *output/file* -f *models/folder*
 
 input: csv file not containing the health status of a patient
 
@@ -56,7 +52,7 @@ optional arguments:
 
 ### Training
 
-bash src/main_training.sh
+bash src/main_training.sh -i *file/to/add/to/dataset* -d *file/containing/dataset* -o *output/file*
 
 Input: csv file containg data to add to the training dataset
 
@@ -90,6 +86,30 @@ options:
 --seed_end             Last random seed to split the folds for the cross validation.
 --nbr_folds            Number of folds for the cross validation.
 -h|--help              Print this Help.
+```
+
+### Docker
+
+You can get the tmjoai docker image by running the folowing command line:
+
+```
+docker pull dcbia/oai:latest
+```
+
+*Training:*
+
+To run the training inside the docker container, run the following command line:
+
+```
+docker run --rm -v */my/input/file*:/app/$(basename */my/input/file*) -v */my/dataset/file*:/app/$(basename */my/dataset/file*) -v */my/output/folder*:/app/out -v */my/models/folder*:/app/models dcbia/oai:latest bash src/main_training.sh -i /app/$(basename */my/input/file*) -d /app/$(basename */my/dataset/file*) -o /app/out -m /app/models
+```
+
+*Prediction:*
+
+To run the prediction inside the docker container, run the following command line:
+
+```
+docker run --rm -v */my/input/file*:/app/$(basename */my/input/file*) -v */my/output/folder*:/app/out dcbia/oai:latest python3 /app/OAI/python/src/main_prediction.py /app/$(basename */my/input/file*) -o /app/out/prediction.csv --folder /app/OAI/python/Models_AF
 ```
 
 #### Add data to the dataset
