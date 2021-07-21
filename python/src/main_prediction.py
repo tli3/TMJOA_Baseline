@@ -49,8 +49,8 @@ def main(args):
     for modelname in models:
         model = pickle.load(open(modelname, 'rb'))
         splitname = os.path.basename(modelname).split('.')[0].split('_')
-        seed = splitname[1]
-        fold = splitname[2]
+        seed = splitname[-2]
+        fold = splitname[-1]
         features = pd.read_csv(os.path.dirname(modelname)+'/../Features.csv')[seed+'_'+fold].dropna()
         fileToPred = interactions.loc[:,features]
         pred = np.add(pred,np.array(model.predict(fileToPred)))
