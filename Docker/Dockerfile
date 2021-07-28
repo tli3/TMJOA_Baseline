@@ -16,3 +16,5 @@ WORKDIR /app/OAI/python
 RUN pip3 install -r ./requirements.txt
 RUN wget https://github.com/celiale/OAI/releases/download/3.2/Models.zip
 RUN unzip Models.zip
+
+RUN chmod +x /app/OAI/python/src/main_training.sh
