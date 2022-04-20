@@ -79,7 +79,13 @@ nbr_features=$((`head -1 $datafile | sed 's/[^,]//g' | wc -m` -1))
 
 echo ${auc_file}
 
-python3 ${src_folder}/Step0_AddTrainingData.py ${inputfile} --file ${datafile}
+if [ -z $inputfile ];
+then
+    echo " - Missing inputfile, will not append data"
+else
+    python3 ${src_folder}/Step0_AddTrainingData.py ${inputfile} --file ${datafile}
+fi
+
 python3 ${src_folder}/Step0_InterractionFile.py ${datafile} -o ${interaction_file}
 python3 ${src_folder}/Step0_AUC.py -i ${interaction_file} -o $auc_file --first_seed ${seed1} --last_seed ${seed_end} --folds ${nbr_folds}
 python3 ${src_folder}/STAT_circ.py ${datafile} -o ${output_folder}/circ.pdf --sort AUC
