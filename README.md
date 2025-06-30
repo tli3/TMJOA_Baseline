@@ -1,7 +1,7 @@
-# OAI
-Scripts for OAI project
+# TMJOA
+Scripts for TMJOA project
 
-Input: OAI_20190621.csv
+Input: TMJ_20190621.csv
 
 # step1. preprocess
 
