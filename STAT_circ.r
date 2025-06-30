@@ -12,7 +12,7 @@ library(EnvStats)
 require(sparseLDA)
 require(sda)
 require(gridExtra)
-A=read.csv('OAI_20190621.csv',check.names = FALSE)
+A=read.csv('TMJ_20190621.csv',check.names = FALSE)
 y=A[,1]
 X=A[,-1]
 p=dim(X)[2]
